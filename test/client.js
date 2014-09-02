@@ -217,6 +217,42 @@ describe('Client', function () {
             });
         });
 
+        it('emits events when trying to perform retrieves', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    callback(null, {
+                        item: false,
+                        stored: false
+                    });
+                }
+            };
+
+            var client = new Catbox.Client(engine);
+            
+            client.on('get', function (data) {
+
+                expect(data).to.not.equal(null);
+                expect(data.key).to.eql({ id: 'id', segment: 'segment' });
+                done();
+            });
+
+            client.get({ id: 'id', segment: 'segment' }, function (err, cached) {
+
+                expect(err).to.equal(null);
+                expect(cached.item).to.equal(false);
+            }); 
+        });
+
         it('returns falsey items', function (done) {
 
             var engine = {
