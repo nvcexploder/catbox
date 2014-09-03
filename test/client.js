@@ -253,6 +253,52 @@ describe('Client', function () {
             }); 
         });
 
+        it('emits \'miss\' events when gets are not found', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    callback(null, null);
+                }
+            };
+
+            var client = new Catbox.Client(engine);
+            
+            client.on('miss', function (reason) {
+
+                expect(reason).to.not.equal(null);
+                expect(reason).to.eql({key: { id: 'id', segment: 'segment' }});
+                done();
+            });
+
+            client.on('get', function (reason) {
+
+                expect(reason).to.not.equal(null);
+                expect(reason).to.eql({key: { id: 'id', segment: 'segment' }});
+                done();
+            });
+
+            client.on('hit', function (reason) {
+
+                expect(reason).to.eql({key: { id: 'id', segment: 'segment' }});
+                done();
+            });
+
+            client.get({ id: 'id', segment: 'segment' }, function (err, cached) {
+
+                expect(err).to.equal(null);
+                expect(cached).to.equal(null);
+            });
+        });
+
         it('returns falsey items', function (done) {
 
             var engine = {
